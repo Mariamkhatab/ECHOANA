@@ -293,14 +293,23 @@ export class CareHome {
           const missing = allIds.filter((id) => !this.rooms[id]);
           if (missing.length) console.warn("Missing rooms:", missing.join(", "));
         }
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) overlay.classList.add("fade-out");
       },
       (progress) => {
         if (progress.total) {
           const pct = Math.round((progress.loaded / progress.total) * 100);
-          if (pct % 20 === 0) console.log(`Loading model… ${pct}%`);
+          const textEl = document.getElementById("loading-text");
+          if (textEl) textEl.textContent = `Loading 3D Model... ${pct}%`;
         }
       },
-      (error) => { console.error("Error loading carehome.glb:", error); console.log("Showing placeholder model."); this._buildPlaceholder(); }
+      (error) => {
+        console.error("Error loading carehome.glb:", error);
+        console.log("Showing placeholder model.");
+        this._buildPlaceholder();
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) overlay.classList.add("fade-out");
+      }
     );
   }
 
