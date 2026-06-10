@@ -11,6 +11,7 @@
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GROUP_ROOMS, GROUP_META } from "./assign.js";
 
@@ -204,7 +205,12 @@ export class CareHome {
   }
 
   _load() {
-    new GLTFLoader().load(
+    const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+
+    loader.load(
       MODEL_URL,
       (gltf) => {
         const root = gltf.scene;
