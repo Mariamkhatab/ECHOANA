@@ -63,6 +63,7 @@ export class CareHome {
     // roomId -> { meshes: [mesh, ...], mats: [{mat, baseEmissive, baseIntensity}, ...] }
     this.rooms = {};
     this.highlighted = [];
+    this._pendingHighlight = null;
     this.clock = new THREE.Clock();
     this._usingRealModel = false;
     this._initRenderer();
@@ -295,6 +296,9 @@ export class CareHome {
         }
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.classList.add("fade-out");
+        if (this._pendingHighlight) {
+          this.highlightGroup(this._pendingHighlight);
+        }
       },
       (progress) => {
         if (progress.total) {
@@ -309,11 +313,18 @@ export class CareHome {
         this._buildPlaceholder();
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.classList.add("fade-out");
+        if (this._pendingHighlight) {
+          this.highlightGroup(this._pendingHighlight);
+        }
       }
     );
   }
 
   highlightGroup(roomIds) {
+    if (Object.keys(this.rooms).length === 0) {
+      this._pendingHighlight = roomIds;
+      return;
+    }
     this.reset();
     this.highlighted = roomIds.filter((id) => this.rooms[id]);
     const dimEverythingElse = new Set(this.highlighted);
@@ -344,6 +355,7 @@ export class CareHome {
   }
 
   reset() {
+    this._pendingHighlight = null;
     for (const r of Object.values(this.rooms)) {
       r.mats.forEach(({ mat, baseEmissive, baseIntensity }) => {
         mat.emissive.setHex(baseEmissive);
