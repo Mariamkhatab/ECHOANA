@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Model Test</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    body { margin: 0; background: #222; color: #0f0; font-family: monospace; font-size: 13px; }
+    #log { padding: 20px; white-space: pre-wrap; max-height: 50vh; overflow: auto; }
+    canvas { width: 100vw; height: 50vh; display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="log"></div>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const el = document.getElementById("log");
+    function log(msg) { el.textContent += msg + "\n"; console.log(msg); }
+
+    const canvas = document.getElementById("c");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x333333);
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.01, 1000);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
+    const sun = new THREE.DirectionalLight(0xffffff, 1);
+    sun.position.set(10, 20, 10);
+    scene.add(sun);
+
+    log("Loading carehome.glb ...");
+
+    new GLTFLoader().load(
+      "./models/carehome.glb",
+      (gltf) => {
+        const root = gltf.scene;
+        log("SUCCESS - GLB loaded");
+
+        // Count everything
+        let meshes = 0, groups = 0, named = 0;
+        const allNames = [];
+        root.traverse((o) => {
+          if (o.isMesh) meshes++;
+          else groups++;
+          if (o.name) {
+            named++;
+            allNames.push(o.name);
+          }
+        });
+        log("Meshes: " + meshes + " | Groups: " + groups + " | Named: " + named);
+
+        // Search for rooms with EVERY possible strategy
+        const roomIds = ["A1","A2","A3","A4","B1","B2","B3","C1","D1","D2"];
+        log("\n=== ROOM SEARCH (all strategies) ===");
+        
+        for (const rid of roomIds) {
+          const found = [];
+          root.traverse((o) => {
+            if (!o.name) return;
+            const n = o.name;
+            const upper = n.toUpperCase().trim();
+            // Strategy 1: exact
+            if (upper === rid) found.push("[exact] " + n);
+            // Strategy 2: ROOM prefix
+            if (upper === "ROOM " + rid) found.push("[ROOM prefix] " + n);
+            // Strategy 3: ROOMS prefix
+            if (upper === "ROOMS " + rid) found.push("[ROOMS prefix] " + n);
+            // Strategy 4: includes (but skip UUIDs)
+            if (!/^[0-9a-f]{8}-/.test(n) && upper.includes(rid) && !found.length) {
+              found.push("[includes] " + n);
+            }
+          });
+          log(rid + ": " + (found.length ? found.join(", ") : "*** NOT FOUND ***"));
+        }
+
+        // Also specifically look for "ROOMS B" -> B3
+        root.traverse((o) => {
+          if (o.name && o.name.toUpperCase().trim() === "ROOMS B") {
+            log("\nFound 'ROOMS B' node -> should map to B3");
+          }
+        });
+
+        // Show ALL unique non-UUID names
+        const unique = [...new Set(allNames)].filter(n => !/^[0-9a-f]{8}-/.test(n)).sort();
+        log("\n=== ALL NON-UUID NAMES (" + unique.length + ") ===");
+        unique.forEach(n => log("  " + n));
+
+        // ADD MODEL TO SCENE
+        root.scale.setScalar(0.01); // cm -> m
+        root.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(root);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        root.position.x -= center.x;
+        root.position.z -= center.z;
+        root.position.y -= box.min.y;
+        scene.add(root);
+
+        log("\nModel size: " + size.x.toFixed(1) + " x " + size.y.toFixed(1) + " x " + size.z.toFixed(1) + " m");
+
+        // Position camera
+        const dist = Math.max(size.x, size.y, size.z) * 1.5;
+        camera.position.set(dist * 0.7, dist * 0.5, dist * 0.8);
+        controls.target.set(0, size.y * 0.3, 0);
+        camera.far = dist * 5;
+        camera.updateProjectionMatrix();
+        controls.update();
+
+        log("\n=== MODEL VISIBLE IN SCENE ABOVE ===");
+      },
+      (p) => {
+        if (p.total) {
+          const pct = Math.round(p.loaded / p.total * 100);
+          if (pct % 25 === 0) log("Loading: " + pct + "%");
+        }
+      },
+      (err) => { log("ERROR: " + err.message); }
+    );
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

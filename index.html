@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ECHOANA — Find your room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app-container">
+    <canvas id="scene"></canvas>
+
+    <header class="topbar">
+      <div class="brand">ECHOANA</div>
+      <div class="tagline">Healing through architecture</div>
+    </header>
+
+    <!-- Landing -->
+    <section id="landing" class="panel">
+      <h1>Find the room that helps you heal.</h1>
+      <p>Answer a few quick questions. Our machine-learning model matches you to the
+         room whose light, view and calm best support your recovery — and lights it up
+         in the model.</p>
+      <button id="start-btn" class="primary">Start the quiz →</button>
+      <ul class="legend">
+        <li><span class="sw" style="background:#111111"></span>A · South · sun</li>
+        <li><span class="sw" style="background:#555555"></span>B · West · afternoon sun</li>
+        <li><span class="sw" style="background:#999999"></span>C · North · calm light</li>
+        <li><span class="sw" style="background:#dddddd; border: 1px solid #ccc;"></span>D · Courtyard · garden</li>
+      </ul>
+    </section>
+
+  <!-- Quiz -->
+  <section id="quiz" class="panel hidden">
+    <div id="progress" class="progress"></div>
+    <h2 id="q-title"></h2>
+    <p id="q-hint" class="hint hidden"></p>
+    <div id="q-options" class="options"></div>
+    <button id="back-btn" class="ghost hidden">← Back</button>
+  </section>
+
+  <!-- Result -->
+  <section id="result" class="panel result hidden">
+    <div class="result-head">
+      <div id="r-badge" class="badge">A</div>
+      <div>
+        <h2 id="r-name">Group A</h2>
+        <div id="r-orient" class="orient"></div>
+      </div>
+    </div>
+    <p class="room-line">Your room: <strong id="r-room">A1</strong> — now glowing in the model.</p>
+    <p id="r-desc" class="desc"></p>
+    <div class="conf">
+      <span>Model match</span>
+      <div class="conf-bar"><div id="r-conf-fill" class="conf-fill"></div></div>
+      <span id="r-conf-val">0%</span>
+    </div>
+    <button id="retake-btn" class="primary">Retake the quiz</button>
+  </section>
+
+  <footer class="footnote">
+    Cohort built from real de-identified NHANES 2017–2018 records · room groups
+    discovered by k-means · recommendation by the project’s decision-tree model.
+  </footer>
+  </div>
+
+  <script type="module" src="./js/main.js?v=7"></script>
+</body>
+</html>

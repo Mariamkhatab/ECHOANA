@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GLB Debug</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <h1>GLB Debug — checking what Three.js sees</h1>
+  <pre id="log" style="white-space:pre-wrap; font-size:12px;"></pre>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+    const log = document.getElementById("log");
+    function print(msg) { log.textContent += msg + "\n"; console.log(msg); }
+
+    print("Loading ./models/carehome.glb ...");
+
+    new GLTFLoader().load(
+      "./models/carehome.glb",
+      (gltf) => {
+        const root = gltf.scene;
+        print("=== LOADED ===");
+        print("Children of scene: " + root.children.length);
+
+        // List ALL named objects
+        const allNames = [];
+        let meshCount = 0;
+        let groupCount = 0;
+        root.traverse((o) => {
+          if (o.name) allNames.push({ name: o.name, type: o.type, isMesh: o.isMesh });
+          if (o.isMesh) meshCount++;
+          if (o.isGroup || o.isObject3D && !o.isMesh) groupCount++;
+        });
+
+        print("\nTotal objects traversed: meshes=" + meshCount + " groups/other=" + groupCount);
+        print("\n=== ALL NAMED OBJECTS (" + allNames.length + ") ===");
+        allNames.forEach(n => print("  " + n.type + ": \"" + n.name + "\" mesh=" + n.isMesh));
+
+        // Search for room IDs
+        const roomIds = ["A1","A2","A3","A4","B1","B2","B3","C1","D1","D2"];
+        print("\n=== ROOM SEARCH ===");
+        for (const rid of roomIds) {
+          const matches = allNames.filter(n => {
+            const upper = n.name.toUpperCase().trim();
+            // Skip UUIDs
+            if (/^[0-9a-f]{8}-/.test(n.name)) return false;
+            if (upper === rid) return true;
+            const m = upper.match(/^ROOMS?\s+(.+)$/);
+            if (m) {
+              if (m[1] === rid) return true;
+              if (m[1] === "B" && rid === "B3") return true;
+            }
+            return false;
+          });
+          print("  " + rid + ": " + (matches.length > 0 ? matches.map(m => '"' + m.name + '" (' + m.type + ')').join(", ") : "NOT FOUND"));
+        }
+      },
+      (p) => { if (p.total) print("Progress: " + Math.round(p.loaded/p.total*100) + "%"); },
+      (err) => { print("ERROR loading GLB: " + err.message); }
+    );
+  </script>
+</body>
+</html>
