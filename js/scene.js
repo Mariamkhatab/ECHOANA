@@ -296,9 +296,6 @@ export class CareHome {
         }
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.classList.add("fade-out");
-        if (this._pendingHighlight) {
-          this.highlightGroup(this._pendingHighlight);
-        }
       },
       (progress) => {
         if (progress.total) {
@@ -313,18 +310,11 @@ export class CareHome {
         this._buildPlaceholder();
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.classList.add("fade-out");
-        if (this._pendingHighlight) {
-          this.highlightGroup(this._pendingHighlight);
-        }
       }
     );
   }
 
   highlightGroup(roomIds) {
-    if (Object.keys(this.rooms).length === 0) {
-      this._pendingHighlight = roomIds;
-      return;
-    }
     this.reset();
     this.highlighted = roomIds.filter((id) => this.rooms[id]);
     const dimEverythingElse = new Set(this.highlighted);
