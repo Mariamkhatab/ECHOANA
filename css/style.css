@@ -1113,6 +1113,15 @@ td {
   margin-bottom: 16px;
 }
 
+.gh-preview-img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: #0f172a;
+  display: block;
+}
+
 .video-player-container {
   width: 100%;
   max-width: 700px;
