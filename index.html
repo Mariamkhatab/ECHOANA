@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ECHOANA — Find your room</title>
+  <title>ECHOANA — ML-Driven Therapeutic Room Assignment</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css?v=12" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script type="importmap">
   {
@@ -18,68 +18,681 @@
   </script>
 </head>
 <body>
+  <!-- Loading Screen -->
   <div id="loading-overlay" class="loading-overlay">
     <div class="spinner"></div>
-    <div id="loading-text">Loading 3D Model... 0%</div>
+    <div id="loading-text">Loading 3D Scene... 0%</div>
   </div>
 
-  <div id="app-container">
-    <canvas id="scene"></canvas>
-
-    <header class="topbar">
-      <div class="brand">ECHOANA</div>
-      <div class="tagline">Healing through architecture</div>
-    </header>
-
-    <!-- Landing -->
-    <section id="landing" class="panel">
-      <h1>Find the room that helps you heal.</h1>
-      <p>Answer a few quick questions. Our machine-learning model matches you to the
-         room whose light, view and calm best support your recovery — and lights it up
-         in the model.</p>
-      <button id="start-btn" class="primary">Start the quiz →</button>
-      <ul class="legend">
-        <li><span class="sw" style="background:#111111"></span>A · South · sun</li>
-        <li><span class="sw" style="background:#555555"></span>B · West · afternoon sun</li>
-        <li><span class="sw" style="background:#999999"></span>C · North · calm light</li>
-        <li><span class="sw" style="background:#dddddd; border: 1px solid #ccc;"></span>D · Courtyard · garden</li>
-      </ul>
-    </section>
-
-  <!-- Quiz -->
-  <section id="quiz" class="panel hidden">
-    <div id="progress" class="progress"></div>
-    <h2 id="q-title"></h2>
-    <p id="q-hint" class="hint hidden"></p>
-    <div id="q-options" class="options"></div>
-    <button id="back-btn" class="ghost hidden">← Back</button>
-  </section>
-
-  <!-- Result -->
-  <section id="result" class="panel result hidden">
-    <div class="result-head">
-      <div id="r-badge" class="badge">A</div>
-      <div>
-        <h2 id="r-name">Group A</h2>
-        <div id="r-orient" class="orient"></div>
+  <div id="dashboard-container">
+    <!-- Sleek Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">ECHOANA</div>
+        <div class="tagline">Therapeutic Architecture</div>
       </div>
-    </div>
-    <p class="room-line">Your room: <strong id="r-room">A1</strong> — now glowing in the model.</p>
-    <p id="r-desc" class="desc"></p>
-    <div class="conf">
-      <span>Model match</span>
-      <div class="conf-bar"><div id="r-conf-fill" class="conf-fill"></div></div>
-      <span id="r-conf-val">0%</span>
-    </div>
-    <button id="retake-btn" class="primary">Retake the quiz</button>
-  </section>
+      <ul class="nav-links">
+        <li>
+          <button class="nav-item active" data-tab="room-matcher">
+            <i data-lucide="user-check"></i>
+            <span>3D Room Matcher</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="project-exhibition">
+            <i data-lucide="layout-template"></i>
+            <span>Project Exhibition</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="smart-poster">
+            <i data-lucide="award"></i>
+            <span>Digital Smart Poster</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="downloads-hub">
+            <i data-lucide="download-cloud"></i>
+            <span>Resource Hub</span>
+          </button>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <span>Phase 2 Submission</span>
+        <span>Jury Evaluation Panel</span>
+      </div>
+    </nav>
 
-  <footer class="footnote">
-    Cohort built from real de-identified NHANES 2017–2018 records · room groups
-    discovered by k-means · recommendation by the project’s decision-tree model.
-  </footer>
+    <!-- Main Workspace Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: 3D Room Matcher (Default) -->
+      <div id="room-matcher-tab" class="tab-pane active">
+        <div id="app-container">
+          <canvas id="scene"></canvas>
+
+          <header class="topbar">
+            <div class="brand">ECHOANA</div>
+            <div class="tagline">Healing through architecture</div>
+          </header>
+
+          <!-- Landing Page Card -->
+          <section id="landing" class="panel">
+            <h1>Find the room that helps you heal.</h1>
+            <p>Answer a few quick questions. Our machine-learning model matches you to the
+               room whose light, view and calm best support your recovery — and lights it up
+               in the model.</p>
+            <button id="start-btn" class="primary">Start the quiz →</button>
+            <ul class="legend">
+              <li><span class="sw" style="background:#ff5a1f"></span>A · South · max sun</li>
+              <li><span class="sw" style="background:#ff7844"></span>B · West · afternoon sun</li>
+              <li><span class="sw" style="background:#3b7dd8"></span>C · North · calm light</li>
+              <li><span class="sw" style="background:#5b8c5a"></span>D · Courtyard · garden</li>
+            </ul>
+          </section>
+
+          <!-- Quiz Card -->
+          <section id="quiz" class="panel hidden">
+            <div id="progress" class="progress"></div>
+            <h2 id="q-title"></h2>
+            <p id="q-hint" class="hint hidden"></p>
+            <div id="q-options" class="options"></div>
+            <button id="back-btn" class="ghost hidden">← Back</button>
+          </section>
+
+          <!-- Result Card -->
+          <section id="result" class="panel result hidden">
+            <div class="result-head">
+              <div id="r-badge" class="badge">A</div>
+              <div>
+                <h2 id="r-name">Group A</h2>
+                <div id="r-orient" class="orient"></div>
+              </div>
+            </div>
+            <p class="room-line">Your room: <strong id="r-room">A1</strong> — now glowing in the model.</p>
+            <p id="r-desc" class="desc"></p>
+            <div class="conf">
+              <span>Model match</span>
+              <div class="conf-bar"><div id="r-conf-fill" class="conf-fill"></div></div>
+              <span id="r-conf-val">0%</span>
+            </div>
+            <button id="retake-btn" class="primary">Retake the quiz</button>
+          </section>
+          
+          <footer class="footnote">
+            Cohort built from real de-identified NHANES 2017–2018 records · room groups
+            discovered by k-means · recommendation by the project’s decision-tree model.
+          </footer>
+        </div>
+      </div>
+
+      <!-- TAB 2: Project Exhibition (Documentation sections a-f) -->
+      <div id="project-exhibition-tab" class="tab-pane">
+        <div class="exhibition-layout">
+          <!-- Sticky Sub-Navigation (Table of Contents) -->
+          <aside class="toc-sidebar">
+            <ul class="toc-links">
+              <li><a href="#sec-objective" class="toc-item active">a. Project Objective</a></li>
+              <li><a href="#sec-computational" class="toc-item">b. Computational Design</a></li>
+              <li><a href="#sec-variables" class="toc-item">c. Variables & Data</a></li>
+              <li><a href="#sec-eda" class="toc-item">d. Data Processing & Viz</a></li>
+              <li><a href="#sec-ml" class="toc-item">e. Machine Learning</a></li>
+              <li><a href="#sec-node" class="toc-item">f. Grasshopper Node</a></li>
+            </ul>
+          </aside>
+
+          <!-- Scrolling Content Area -->
+          <div class="exhibition-content">
+            
+            <!-- a. Project Objective -->
+            <section id="sec-objective" class="doc-section">
+              <span class="sec-badge">a. Portfolio Objective</span>
+              <h2>Project Objective</h2>
+              <div class="grid-text-img">
+                <div class="doc-text">
+                  <p><strong>ECHOANA</strong> is a wellness-recovery residence designed for patients well enough not to require hospitalization, yet needing tailored environments to heal. The spatial assignment of patients to rooms is traditionally arbitrary. This project introduces an <strong>ML-driven spatial matching pipeline</strong> that assigns each patient to the room group that best supports their recovery based on physical and mental assessments.</p>
+                  <p>In addition, the exterior louvers of the building facade are controlled by a <strong>recovery regressor</strong>. As patients heal over a 45-day stay, the facade adapts dynamically to optimize sunlight exposure and biological needs, gradually stabilizing to a comfort baseline.</p>
+                  <div class="objective-card">
+                    <h4>Predictive Target Summary</h4>
+                    <ul>
+                      <li><strong>Recommended Room Group:</strong> Optimal therapeutic signature matches (A, B, C, or D).</li>
+                      <li><strong>45-Day Recovery Trajectory:</strong> Predicts patient physical/mental health improvements.</li>
+                      <li><strong>Adaptive Facade Louver Angle:</strong> Direct drives of exterior louvers over the stay.</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="doc-figure">
+                  <img src="./figures/room_signatures.png" alt="Room Signatures Heatmap" class="zoomable" />
+                  <p class="caption">Figure 1: Heatmap showing the therapeutic signatures and capability profiles calculated for each of the 4 room groups (Solar, Care, Green view, Calmness).</p>
+                </div>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <!-- b. Computational Design -->
+            <section id="sec-computational" class="doc-section">
+              <span class="sec-badge">b. Parametric Architecture</span>
+              <h2>Grasshopper Model & Facade Logic</h2>
+              <p>The building footprint consists of 10 rooms oriented around a central courtyard. The architectural layout divides the rooms into four distinct therapeutic groups based on glazing directions, daylight access, garden views, and proximity to care rooms:</p>
+              
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Room Count & Type</th>
+                      <th>Orientation</th>
+                      <th>Therapeutic Signature & Design Strategy</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Group A</strong></td>
+                      <td>4 Single Rooms</td>
+                      <td>South</td>
+                      <td>Maximum all-day sun, nearest exam suite. Best for low vitamin D and high care needs.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Group B</strong></td>
+                      <td>3 Double Rooms</td>
+                      <td>West</td>
+                      <td>Strong afternoon sun. Designed for sun-seeking patients staying with a caretaker.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Group C</strong></td>
+                      <td>1 Double Room</td>
+                      <td>North</td>
+                      <td>Soft, calm diffuse daylight. Best for light-sensitive patients with a caretaker.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Group D</strong></td>
+                      <td>2 Single Rooms</td>
+                      <td>North / Courtyard</td>
+                      <td>Courtyard garden views, near care. Best for flat mood/depression where biophilic view beats direct sun.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="grid-text-img">
+                <div class="doc-text">
+                  <h3>Dynamic Louver Openness Control</h3>
+                  <p>In South (Group A) and West (Group B) rooms, the louvers are motorized and driven by the patient's recovery data. Louver openness ($\theta$) ranges from <strong>0.35 (comfort baseline)</strong> to <strong>1.0 (fully open)</strong>.</p>
+                  <p>For patients with severe Vitamin D deficiency, the facade starts wide open (up to 0.78) to maximize UV exposure, then gradually closes to the 0.35 comfort baseline as the predicted recovery curve normalizes. In contrast, North and Courtyard rooms (Groups C and D) maintain a steady 0.35 daylight baseline as they do not receive direct glare.</p>
+                </div>
+                <div class="doc-figure">
+                  <img src="./figures/recovery_facade.png" alt="Recovery Facade Schedules" class="zoomable" />
+                  <p class="caption">Figure 2: Adaptive facade openness schedule over a 45-day stay. Group A/B curves ease off as patients heal; C/D curves hold a daylight baseline.</p>
+                </div>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <!-- c. Variables & Data -->
+            <section id="sec-variables" class="doc-section">
+              <span class="sec-badge">c. Features & Targets</span>
+              <h2>Defining the Variables</h2>
+              <p>The patient dataset contains 12 clinical intake features (grounded in the <strong>US CDC NHANES 2017-2018 survey</strong>) and 3 target variables. Provenance metadata is strictly preserved and printed below to guarantee project authenticity.</p>
+              
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Variable Name</th>
+                      <th>Type</th>
+                      <th>Clinical Instrument / NHANES Provenance</th>
+                      <th>Valid Range</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>age</code></td>
+                      <td>Feature (X1)</td>
+                      <td>Real NHANES (DEMO_J.RIDAGEYR)</td>
+                      <td>18 – 90 yrs</td>
+                      <td>Age of the patient.</td>
+                    </tr>
+                    <tr>
+                      <td><code>vitamin_d_ngml</code></td>
+                      <td>Feature (X2)</td>
+                      <td>Real NHANES (VID_J.LBXVIDMS)</td>
+                      <td>5 – 60 ng/mL</td>
+                      <td>Serum Vitamin D levels. Deficiency is &lt;20.</td>
+                    </tr>
+                    <tr>
+                      <td><code>phq9_depression</code></td>
+                      <td>Feature (X3)</td>
+                      <td>Real NHANES (DPQ_J DPQ010-090 summed)</td>
+                      <td>0 – 27</td>
+                      <td>PHQ-9 Depression scale. Severe is &ge;20.</td>
+                    </tr>
+                    <tr>
+                      <td><code>gad7_anxiety</code></td>
+                      <td>Feature (X4)</td>
+                      <td>Modelled from real PHQ-9 comorbid data</td>
+                      <td>0 – 21</td>
+                      <td>GAD-7 Anxiety score.</td>
+                    </tr>
+                    <tr>
+                      <td><code>mobility_index</code></td>
+                      <td>Feature (X5)</td>
+                      <td>Proxy derived from NHANES difficulty items</td>
+                      <td>10 – 100</td>
+                      <td>Barthel-like physical function scale. Lower is worse.</td>
+                    </tr>
+                    <tr>
+                      <td><code>pain_score</code></td>
+                      <td>Feature (X6)</td>
+                      <td>Modelled from real mobility difficulty + age</td>
+                      <td>0 – 10</td>
+                      <td>Visual Pain Score (NRS).</td>
+                    </tr>
+                    <tr>
+                      <td><code>sleep_quality_psqi</code></td>
+                      <td>Feature (X7)</td>
+                      <td>Proxy derived from NHANES sleep items</td>
+                      <td>0 – 21</td>
+                      <td>Sleep quality index (PSQI). Higher is worse sleep.</td>
+                    </tr>
+                    <tr>
+                      <td><code>fatigue_score</code></td>
+                      <td>Feature (X8)</td>
+                      <td>Real NHANES energy item (DPQ050 scaled)</td>
+                      <td>0 – 10</td>
+                      <td>Felt fatigue/exhaustion score.</td>
+                    </tr>
+                    <tr>
+                      <td><code>light_sensitivity</code></td>
+                      <td>Feature (X9)</td>
+                      <td>Modelled (sunlight discomfort scale)</td>
+                      <td>0 – 10</td>
+                      <td>Photophobia level. Higher is more light sensitive.</td>
+                    </tr>
+                    <tr>
+                      <td><code>bmi</code></td>
+                      <td>Feature (X10)</td>
+                      <td>Real NHANES (BMX_J.BMXBMI)</td>
+                      <td>15 – 45</td>
+                      <td>Body Mass Index.</td>
+                    </tr>
+                    <tr>
+                      <td><code>sun_tolerance</code></td>
+                      <td>Feature (X11)</td>
+                      <td>Modelled (sun exposure duration scale)</td>
+                      <td>0 – 10</td>
+                      <td>Ability to tolerate bright sun.</td>
+                    </tr>
+                    <tr>
+                      <td><code>caretaker_present</code></td>
+                      <td>Feature (X12)</td>
+                      <td>Proxy derived from NHANES cohabitation code</td>
+                      <td>0 or 1</td>
+                      <td>Flag indicating if spouse/caretaker resides with patient.</td>
+                    </tr>
+                    <tr class="target-row">
+                      <td><code>group_code</code></td>
+                      <td>Target (Y1)</td>
+                      <td>Discovered via Stratified K-Means</td>
+                      <td>A, B, C, D</td>
+                      <td>Assigned Room Group (0=A, 1=B, 2=C, 3=D).</td>
+                    </tr>
+                    <tr class="target-row">
+                      <td><code>predicted_improvement</code></td>
+                      <td>Target (Y2)</td>
+                      <td>GradientBoosting Regression</td>
+                      <td>0 – 100</td>
+                      <td>Predicted 45-day clinical improvement score.</td>
+                    </tr>
+                    <tr class="target-row">
+                      <td><code>openness_schedule</code></td>
+                      <td>Target (Y3)</td>
+                      <td>Dynamic mathematical schedule</td>
+                      <td>0.35 – 1.0</td>
+                      <td>45-day array of daily facade openness values.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <!-- d. Data Processing & Viz -->
+            <section id="sec-eda" class="doc-section">
+              <span class="sec-badge">d. Data Engineering & EDA</span>
+              <h2>Data Processing & Exploratory Analysis</h2>
+              
+              <div class="eda-cards-grid">
+                <div class="eda-card">
+                  <div class="eda-card-icon"><i data-lucide="droplet-off"></i></div>
+                  <h4>1. Data Cleansing</h4>
+                  <p>Raw NHANES data contained missing items (especially in sleep, mobility, and vitamin D). We validated clinical ranges, filtered outliers, and performed median-imputation on 834 missing/voided data points across 1500 patient rows.</p>
+                </div>
+                <div class="eda-card">
+                  <div class="eda-card-icon"><i data-lucide="refresh-cw"></i></div>
+                  <h4>2. Data Transformation</h4>
+                  <p>All categorical status variables (such as marital status in cohabitation proxies) were mapped into numeric columns. Model inputs were scaled and clinical scales bounded correctly to maximize ML convergence speeds.</p>
+                </div>
+                <div class="eda-card">
+                  <div class="eda-card-icon"><i data-lucide="git-merge"></i></div>
+                  <h4>3. Data Integration</h4>
+                  <p>Integrated features by computing 4 therapeutic-need scores mapping symptoms directly to spatial capabilities: <code>need_sun</code>, <code>need_care</code>, <code>need_green</code>, and <code>need_calm</code>.</p>
+                </div>
+              </div>
+
+              <div class="grid-text-img">
+                <div class="doc-figure">
+                  <img src="./figures/correlation_matrix.png" alt="Correlation Matrix" class="zoomable" />
+                  <p class="caption">Figure 3: Correlation Matrix of patient features. Displays expected medical comorbidities (e.g., PHQ-9 depression vs PSQI sleep quality / GAD-7 anxiety).</p>
+                </div>
+                <div class="doc-figure">
+                  <img src="./figures/assignment_distribution.png" alt="Assignment Distribution Chart" class="zoomable" />
+                  <p class="caption">Figure 4: Stacked bar chart showing assignments across the 4 room groups. The stratified split maintains the solo-single and caretaker-double constraints.</p>
+                </div>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <!-- e. Machine Learning -->
+            <section id="sec-ml" class="doc-section">
+              <span class="sec-badge">e. ML Model & Validation</span>
+              <h2>The Machine Learning Architecture</h2>
+              <p>A two-stage ML pipeline runs in Python: unsupervised discovery determines natural patient profiles, and supervised classification generalizes the rules for new admissions.</p>
+              
+              <div class="pipeline-steps">
+                <div class="p-step">
+                  <div class="p-step-num">01</div>
+                  <h4>K-Means Clustering</h4>
+                  <p>Discovers patient needs profiles from the 4 derived scores. Clustering is <strong>stratified by caretaker presence</strong> to strictly enforce architectural occupancy limits. Silhouette validation justifies $k=2$ per pool (2+2 = 4 room groups).</p>
+                </div>
+                <div class="p-step">
+                  <div class="p-step-num">02</div>
+                  <h4>Random Forest Classifier</h4>
+                  <p>Trained on discovered clusters to classify incoming walk-in patients instantly from the 12 features. Reaches <strong>90.9% testing accuracy</strong> and <strong>0.908 Macro-F1 score</strong>.</p>
+                </div>
+                <div class="p-step">
+                  <div class="p-step-num">03</div>
+                  <h4>Explainable Decision Tree</h4>
+                  <p>A depth-limited decision tree is transpiled directly to JS to execute client-side. The tree makes splits based on caretaker status, light sensitivity, and vitamin D, rendering the AI matches fully transparent.</p>
+                </div>
+                <div class="p-step">
+                  <div class="p-step-num">04</div>
+                  <h4>Recovery Regressor</h4>
+                  <p>Predicts 45-day patient clinical improvement ($R^2 = 0.841$) and controls the adaptive facade scheduling based on recovery speeds.</p>
+                </div>
+              </div>
+
+              <div class="grid-3col">
+                <div class="doc-figure">
+                  <img src="./figures/cluster_validation.png" alt="Cluster Validation Metrics" class="zoomable" />
+                  <p class="caption">Figure 5: Elbow (inertia) and Silhouette metrics per caretaker pool, justifying $k=2$ clusters per group.</p>
+                </div>
+                <div class="doc-figure">
+                  <img src="./figures/feature_importance.png" alt="Random Forest Feature Importance" class="zoomable" />
+                  <p class="caption">Figure 6: Global feature importance, showing caretaker status and light sensitivity as primary room assignment drivers.</p>
+                </div>
+                <div class="doc-figure">
+                  <img src="./figures/confusion_matrix.png" alt="Classifier Confusion Matrix" class="zoomable" />
+                  <p class="caption">Figure 7: Confusion matrix verifying model fidelity to the discovered room-group clusters.</p>
+                </div>
+              </div>
+
+              <div class="tree-svg-container">
+                <h3>Explainable AI Flowchart (Decision Tree splits)</h3>
+                <div class="tree-scroll">
+                  <img src="./figures/decision_tree.svg" alt="Decision Tree SVG Diagram" class="svg-diagram zoomable" />
+                </div>
+                <p class="caption">Figure 8: High-resolution SVG of the decision tree model transpiled to run in this browser. You can trace the exact logic splits.</p>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <!-- f. Grasshopper Node -->
+            <section id="sec-node" class="doc-section">
+              <span class="sec-badge">f. Grasshopper Custom Node</span>
+              <h2>Rhino / Grasshopper Live Connection</h2>
+              <div class="grid-text-img">
+                <div class="doc-text">
+                  <p>Three GhPython components close the loop between Grasshopper and the ML pipeline. Standard library Python is utilized so <strong>no pandas/scikit-learn is required inside Rhino/Grasshopper</strong>. Script code works in IronPython 2.7 (Rhino 6/7) and CPython 3 (Rhino 8).</p>
+                  
+                  <div class="gh-step">
+                    <h5>1. <code>gh_export_rooms.py</code></h5>
+                    <p>Frees Ladybug solar and daylight analysis data to a structured <code>rooms.csv</code> file for pipeline processing.</p>
+                  </div>
+                  <div class="gh-step">
+                    <h5>2. <code>gh_read_assignments.py</code></h5>
+                    <p>Loads <code>assignments.csv</code>, colors Grasshopper room zones dynamically (Group A gold, B orange, C blue, D green), and displays clinical statistics on text tags in Rhino space.</p>
+                  </div>
+                  <div class="gh-step">
+                    <h5>3. <code>gh_drive_facade.py</code></h5>
+                    <p>Loads <code>facade_schedule.csv</code> and drives parametric facade geometries (louvers) using predicted daily openness parameters ($\theta$). Scrubbing the day slider animates facade breathing.</p>
+                  </div>
+                </div>
+                <div class="doc-figure">
+                  <div class="code-box">
+                    <div class="code-header">
+                      <span>gh_drive_facade.py (Excerpt)</span>
+                      <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('code-gh').innerText)">Copy</button>
+                    </div>
+                    <pre><code id="code-gh"># GhPython facade driver excerpt
+import os
+
+def read_schedule(csv_path):
+    if not os.path.exists(csv_path):
+        return None
+    sched = {}
+    with open(csv_path, 'r') as f:
+        headers = f.readline().strip().split(',')
+        for h in headers:
+            sched[h] = []
+        for line in f:
+            vals = line.strip().split(',')
+            for i, val in enumerate(vals):
+                sched[headers[i]].append(float(val))
+    return sched
+
+# Read row and rotate facade louvers
+s = read_schedule(facade_path)
+if s and group in ['A', 'B', 'C', 'D']:
+    openness = s['openness_' + group][day]
+    # Louver angle: 0 means open, max_angle means closed
+    louver_angle = (1.0 - openness) * max_angle
+    print("Group %s openness: %.3f" % (group, openness))</code></pre>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Digital Smart Poster -->
+      <div id="smart-poster-tab" class="tab-pane">
+        <div class="poster-scroll-wrapper">
+          <div class="smart-poster-grid">
+            <!-- Header Banner -->
+            <header class="poster-header">
+              <div class="poster-title-area">
+                <h1>ECHOANA — ML-Driven Therapeutic Residence</h1>
+                <h3>Unsupervised Discovery and Supervised Generalisation in Architectural Room Assignment</h3>
+              </div>
+              <div class="poster-meta">
+                <span><strong>Presenter:</strong> Graduation Design Project Portfolio</span>
+                <span><strong>Advisor:</strong> Nariman</span>
+                <span><strong>Institution:</strong> Architecture Department</span>
+              </div>
+            </header>
+
+            <!-- Column 1: Intro & Design -->
+            <div class="poster-column">
+              <div class="poster-card border-accent">
+                <h3>1. Introduction & Objectives</h3>
+                <p>Healing residences often assign patients to rooms randomly. However, factors like solar irradiation, biophilic views, and proximity to nurse suites directly affect mental and physical recovery. This project presents a <strong>machine-learning room matching and facade control system</strong> to optimize clinical outcomes.</p>
+                <div class="poster-stat-box">
+                  <div class="poster-stat">
+                    <h2>1500</h2>
+                    <span>Cleaned Patients (NHANES)</span>
+                  </div>
+                  <div class="poster-stat">
+                    <h2>4</h2>
+                    <span>Therapeutic Clusters Discovered</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="poster-card">
+                <h3>2. Parametric Design & Facade</h3>
+                <p>Ten recovery rooms are distributed around a central courtyard. Rooms have fixed architectural parameters (glazing widths, orientations, views):</p>
+                <ul class="poster-list">
+                  <li><strong>South (A):</strong> Max sun, closest to care. (Singles)</li>
+                  <li><strong>West (B):</strong> Strong afternoon sun. (Doubles)</li>
+                  <li><strong>North (C):</strong> Calming diffuse light. (Double)</li>
+                  <li><strong>Courtyard (D):</strong> Direct garden views. (Singles)</li>
+                </ul>
+                <p>South and West room louvers adapt over a 45-day recovery stay, starting wide open for vitamin D deficient patients and closing as health indicators normalize.</p>
+              </div>
+            </div>
+
+            <!-- Column 2: Data & Pipeline -->
+            <div class="poster-column">
+              <div class="poster-card border-accent">
+                <h3>3. Patients Cohort (NHANES)</h3>
+                <p>Data was gathered from the <strong>US CDC NHANES 2017-2018 database</strong> (Age, BMI, Vitamin D, PHQ-9 Depression, Fatigue, sleep, and mobility indicators). 8 out of 12 clinical columns are grounded in real measurements. Deficient patients were screened, cleansed, and integrated into need profiles.</p>
+                <img src="./figures/correlation_matrix.png" class="poster-img" alt="Correlation" />
+              </div>
+
+              <div class="poster-card">
+                <h3>4. Stratified K-Means Discovery</h3>
+                <p>To respect single vs. double occupancy limitations, K-means clustering is stratified by caretaker presence:
+                  <br>• <strong>Solo patients:</strong> $k=2$ -> mapped to Single Room groups {A, D}
+                  <br>• <strong>Caretaker patients:</strong> $k=2$ -> mapped to Double Room groups {B, C}
+                </p>
+                <img src="./figures/cluster_profiles.png" class="poster-img" alt="Clusters" />
+              </div>
+            </div>
+
+            <!-- Column 3: ML Results & Integration -->
+            <div class="poster-column">
+              <div class="poster-card">
+                <h3>5. RandomForest Classification</h3>
+                <p>To classify new patients instantly without running K-means, we trained a Random Forest model. It achieves <strong>90.9% testing accuracy</strong>. Feature importance confirms caretaker presence and light sensitivity drive the assignment.</p>
+                <img src="./figures/feature_importance.png" class="poster-img" alt="Importances" />
+              </div>
+
+              <div class="poster-card border-accent">
+                <h3>6. Grasshopper Custom Node & Close Loop</h3>
+                <p>Trained <code>.joblib</code> models are exported and read inside Rhino/Grasshopper via GhPython nodes. Louver rotations and room colors respond dynamically, verifying a closed-loop parametric design cycle.</p>
+                <img src="./figures/recovery_facade.png" class="poster-img" alt="Facade" />
+                <div class="poster-footer-credits">
+                  <span><strong>Classifier:</strong> RandomForest (transpiled to JS)</span>
+                  <span><strong>Regressor:</strong> Gradient Boosting (R² = 0.841)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Resource Hub (Downloads & Video) -->
+      <div id="downloads-hub-tab" class="tab-pane">
+        <div class="downloads-container">
+          <div class="downloads-header">
+            <h2>Resource Hub & Download Center</h2>
+            <p>Access all deliverables and scripts required for the final evaluation, including the training datasets, Grasshopper nodes, ML models, and the walkthrough video.</p>
+          </div>
+
+          <div class="downloads-grid-layout">
+            <!-- Left: Video Showcase -->
+            <div class="video-showcase-card">
+              <h3>Demo Video Demonstration</h3>
+              <p>This 1-minute video demonstrates the workflow starting from building the model, data preparation, ML clustering, and live real-time louver predictions inside Rhino/Grasshopper.</p>
+              <div class="video-player-container">
+                <video id="demo-video" controls poster="./figures/room_signatures.png">
+                  <source src="./video/demo_video.mp4" type="video/mp4" />
+                  <div class="video-fallback">
+                    <i data-lucide="video"></i>
+                    <p>Demo Video Placeholder</p>
+                    <small>Place your demo video file at <code>web/video/demo_video.mp4</code> to play here.</small>
+                  </div>
+                </video>
+              </div>
+            </div>
+
+            <!-- Right: Download Cards -->
+            <div class="downloads-list-card">
+              <h3>Deliverables List</h3>
+              <div class="download-items">
+                <!-- Item 1: Complete Package -->
+                <div class="dl-item highlighted-dl">
+                  <div class="dl-icon"><i data-lucide="archive"></i></div>
+                  <div class="dl-details">
+                    <h4>Complete Project Bundle (.zip)</h4>
+                    <p>Contains HTML/JS website source code, datasets, diagrams, and Python scripts.</p>
+                  </div>
+                  <a href="./echoana_website.zip" class="dl-btn" download><i data-lucide="download"></i> Download</a>
+                </div>
+                
+                <!-- Item 2: Datasets -->
+                <div class="dl-item">
+                  <div class="dl-icon"><i data-lucide="database"></i></div>
+                  <div class="dl-details">
+                    <h4>Cleaned Patient Dataset (patients_clean.csv)</h4>
+                    <p>1,500 patient records extracted from NHANES 2017-2018 with calculated need indicators.</p>
+                  </div>
+                  <a href="./data/patients_clean.csv" class="dl-btn" download><i data-lucide="download"></i> CSV</a>
+                </div>
+
+                <!-- Item 3: Rooms Geometry -->
+                <div class="dl-item">
+                  <div class="dl-icon"><i data-lucide="table"></i></div>
+                  <div class="dl-details">
+                    <h4>Physical Rooms Dataset (rooms.csv)</h4>
+                    <p>Defines geometry widths, orientations, and daylight proxies for the 10 rooms.</p>
+                  </div>
+                  <a href="./data/rooms.csv" class="dl-btn" download><i data-lucide="download"></i> CSV</a>
+                </div>
+
+                <!-- Item 4: Grasshopper Files -->
+                <div class="dl-item">
+                  <div class="dl-icon"><i data-lucide="sliders"></i></div>
+                  <div class="dl-details">
+                    <h4>Grasshopper Custom Nodes Python Scripts</h4>
+                    <p>GhPython scripts to read assignments and animate facade louvers inside Rhino.</p>
+                  </div>
+                  <a href="./grasshopper/GRASSHOPPER_SETUP.md" class="dl-btn" download><i data-lucide="external-link"></i> Instructions</a>
+                </div>
+
+                <!-- Item 5: Trained ML Models -->
+                <div class="dl-item">
+                  <div class="dl-icon"><i data-lucide="cpu"></i></div>
+                  <div class="dl-details">
+                    <h4>Trained Random Forest Classifier (.joblib)</h4>
+                    <p>The trained classifier model used to recommend room assignments.</p>
+                  </div>
+                  <a href="./models/rf_classifier.joblib" class="dl-btn" download><i data-lucide="download"></i> Joblib</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
   </div>
 
-  <script type="module" src="./js/main.js?v=7"></script>
+  <!-- High-Resolution Image Viewer Modal -->
+  <div id="image-modal" class="image-modal">
+    <span class="modal-close">&times;</span>
+    <img class="modal-content" id="modal-img" src="" alt="Expanded View" />
+    <div id="modal-caption" class="modal-caption"></div>
+  </div>
+
+  <script type="module" src="./js/main.js?v=12"></script>
 </body>
 </html>

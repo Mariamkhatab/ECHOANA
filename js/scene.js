@@ -143,10 +143,20 @@ export class CareHome {
   _registerRoom(id, group, meshes) {
     const meshArray = Array.isArray(meshes) ? meshes : [meshes];
     const allMats = [];
+    const groupColors = { A: "#ff5a1f", B: "#ff7844", C: "#3b7dd8", D: "#5b8c5a" };
+    const colorHex = groupColors[group] || "#ffffff";
+
     for (const mesh of meshArray) {
       const rawMats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       for (const m of rawMats) {
         const mat = m.clone();
+        
+        // Force room meshes to be transparent colored glass
+        mat.color.set(colorHex);
+        mat.transparent = true;
+        mat.opacity = 0.35;
+        mat.depthWrite = false;
+
         if (!mat.emissive) mat.emissive = new THREE.Color(0x000000);
         allMats.push({ mat, baseEmissive: mat.emissive.getHex(), baseIntensity: mat.emissiveIntensity ?? 1 });
       }
@@ -239,11 +249,30 @@ export class CareHome {
           }
         });
 
-        // Pass 2: enable shadows on all meshes
+        // Pass 2: enable shadows on all meshes and fix dark materials
         root.traverse((o) => {
           if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
+
+            // If it is NOT a registered room mesh, adjust its material if it's default dark
+            if (o.material && !o.userData.roomId) {
+              const materials = Array.isArray(o.material) ? o.material : [o.material];
+              materials.forEach((mat) => {
+                const name = (mat.name || "").toLowerCase();
+                const color = mat.color;
+                
+                // If baseColor is black/dark grey, or material name is default unnamed/auto/metal
+                const isBlack = color && color.r < 0.15 && color.g < 0.15 && color.b < 0.15;
+                const isDefaultDark = name.includes("unnamed") || name.includes("auto") || name.includes("metal");
+                
+                if (isBlack || isDefaultDark) {
+                  mat.color.setHex(0xe8ecef); // Beautiful light grey architectural color
+                  mat.roughness = 0.85;
+                  mat.metalness = 0.15;
+                }
+              });
+            }
           }
         });
 
@@ -327,8 +356,8 @@ export class CareHome {
     for (const [id, r] of Object.entries(this.rooms)) {
       const on = dimEverythingElse.has(id);
       r.mats.forEach(({ mat }) => {
-        mat.transparent = !on;
-        mat.opacity = on ? 1 : 0.28;
+        mat.transparent = true;
+        mat.opacity = on ? 0.70 : 0.08;
       });
     }
     // ease the camera target to the centroid of the chosen rooms
@@ -356,7 +385,8 @@ export class CareHome {
       r.mats.forEach(({ mat, baseEmissive, baseIntensity }) => {
         mat.emissive.setHex(baseEmissive);
         mat.emissiveIntensity = baseIntensity;
-        mat.transparent = false; mat.opacity = 1;
+        mat.transparent = true;
+        mat.opacity = 0.35;
       });
     }
     this.highlighted = [];
@@ -371,7 +401,20 @@ export class CareHome {
     this.camera.updateProjectionMatrix();
   }
 
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    if (this.paused) {
+      this.paused = false;
+      this.clock.getDelta(); // reset clock delta to prevent jump
+      this._animate();
+    }
+  }
+
   _animate() {
+    if (this.paused) return;
     requestAnimationFrame(() => this._animate());
     this._resize();
     const t = this.clock.getElapsedTime();

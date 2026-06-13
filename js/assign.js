@@ -20,11 +20,11 @@ export const GROUP_ROOMS = {
 export const GROUP_META = {
   A: { name: "Group A", orient: "South · maximum sun", color: "#ff5a1f",
        desc: "South-facing single — the sunniest rooms, closest to the care suite. For guests who are low on sunlight or vitamin&nbsp;D and want easy access to care." },
-  B: { name: "Group B", orient: "West · afternoon sun", color: "#ff5a1f",
+  B: { name: "Group B", orient: "West · afternoon sun", color: "#ff7844",
        desc: "West-facing shared room with strong afternoon sun. For sun-seeking guests staying with a partner or carer." },
-  C: { name: "Group C", orient: "North · calm light", color: "#ff5a1f",
+  C: { name: "Group C", orient: "North · calm light", color: "#3b7dd8",
        desc: "North-facing shared room with soft, glare-free light. For light-sensitive guests staying with a partner or carer." },
-  D: { name: "Group D", orient: "North · garden view", color: "#ff5a1f",
+  D: { name: "Group D", orient: "North · garden view", color: "#5b8c5a",
        desc: "North / courtyard single — gentle light with a garden view, near the care suite. For low mood where greenery helps more than direct sun." },
 };
 

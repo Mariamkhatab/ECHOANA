@@ -103,3 +103,102 @@ function showResult(rec) {
 els.start.onclick = startQuiz;
 els.retake.onclick = startQuiz;
 els.back.onclick = back;
+
+// ==========================================================================
+// Upgraded Presentation Tab Switching & Layout Controls
+// ==========================================================================
+const navItems = document.querySelectorAll(".nav-item");
+const tabPanes = document.querySelectorAll(".tab-pane");
+
+navItems.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const targetTab = btn.getAttribute("data-tab");
+    
+    // Toggle nav active state
+    navItems.forEach((item) => item.classList.remove("active"));
+    btn.classList.add("active");
+    
+    // Toggle tab visibility
+    tabPanes.forEach((pane) => {
+      pane.classList.remove("active");
+      if (pane.id === `${targetTab}-tab`) {
+        pane.classList.add("active");
+      }
+    });
+
+    // Pause/Resume rendering optimization based on active view
+    if (targetTab === "room-matcher") {
+      home.resume();
+    } else {
+      home.pause();
+    }
+  });
+});
+
+// ==========================================================================
+// Table of Contents ScrollSpy and smooth navigation
+// ==========================================================================
+const exhibitionContent = document.querySelector(".exhibition-content");
+const tocLinks = document.querySelectorAll(".toc-item");
+const docSections = document.querySelectorAll(".doc-section");
+
+if (exhibitionContent) {
+  // Clicking TOC items scrolls content
+  tocLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("href");
+      const targetSection = document.querySelector(targetId);
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: "smooth" });
+        tocLinks.forEach((l) => l.classList.remove("active"));
+        link.classList.add("active");
+      }
+    });
+  });
+
+  // ScrollSpy to highlight TOC items as user scrolls
+  exhibitionContent.addEventListener("scroll", () => {
+    let currentId = "";
+    const containerTop = exhibitionContent.getBoundingClientRect().top;
+    
+    docSections.forEach((section) => {
+      const sectionTop = section.getBoundingClientRect().top - containerTop;
+      // If the section is near the top of the scrolling viewport
+      if (sectionTop <= 100) {
+        currentId = "#" + section.id;
+      }
+    });
+
+    if (currentId) {
+      tocLinks.forEach((link) => {
+        link.classList.toggle("active", link.getAttribute("href") === currentId);
+      });
+    }
+  });
+}
+
+// ==========================================================================
+// High-Resolution Image Modal Overlay
+// ==========================================================================
+const modal = document.getElementById("image-modal");
+const modalImg = document.getElementById("modal-img");
+const captionText = document.getElementById("modal-caption");
+const closeBtn = document.querySelector(".modal-close");
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("zoomable")) {
+    modal.style.display = "flex";
+    modalImg.src = e.target.src;
+    captionText.innerHTML = e.target.alt || "";
+  }
+});
+
+if (modal) {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal || e.target === closeBtn) {
+      modal.style.display = "none";
+    }
+  });
+}
+
