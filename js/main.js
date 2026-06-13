@@ -1,6 +1,6 @@
 // Flow: landing -> emoji quiz -> model recommendation -> light up the room + result card.
 
-import { CareHome } from "./scene.js?v=6";
+import { CareHome } from "./scene.js?v=7";
 import { QUESTIONS, assembleFeatures } from "./quiz.js";
 import { recommend } from "./assign.js";
 import { FEATURE_ORDER } from "./model.js";
@@ -201,4 +201,16 @@ if (modal) {
     }
   });
 }
+
+// ==========================================================================
+// Render all static decorative icons on initial load.
+// (Previously createIcons() only ran while rendering the quiz, so sidebar,
+//  EDA, and download icons stayed blank until the quiz was reached.)
+// ==========================================================================
+function renderIcons() {
+  if (window.lucide) window.lucide.createIcons();
+}
+renderIcons();
+// Safety net in case the lucide CDN script hasn't finished loading yet.
+window.addEventListener("load", renderIcons);
 
