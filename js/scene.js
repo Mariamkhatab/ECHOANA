@@ -334,9 +334,9 @@ export class CareHome {
       },
       (progress) => {
         if (progress.total) {
-          const pct = Math.round((progress.loaded / progress.total) * 100);
+          const pct = Math.min(100, Math.round((progress.loaded / progress.total) * 100));
           const textEl = document.getElementById("loading-text");
-          if (textEl) textEl.textContent = `Loading 3D Model... ${pct}%`;
+          if (textEl) textEl.textContent = `Loading 3D Model… ${pct}%`;
         }
       },
       (error) => {
